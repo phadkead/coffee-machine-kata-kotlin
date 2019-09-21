@@ -4,51 +4,74 @@ import com.drink.OrderResult
 import com.drink.PreparedOrder
 
 class CoffeeMachine {
-    fun process(command: String): OrderResult {
-        //TODO throw exception if order not in right format
-        val splittedValues = command.split(":")
-        val drink: String = splittedValues[0][0].toString()
-        val extraHot: Boolean = splittedValues[0].length == 2
-        val message =
-            if (drink == OrderType.M.name) splittedValues[1]
-            else null
 
-        val sugarQuantity: Int? = splittedValues[1].toIntOrNull() ?: 0
+    private val orders = mutableListOf<PreparedOrder>()
 
+    fun process(orderString: String): OrderResult {
+        val commands = orderString.split(":")
+        val drink: String = commands[0][0].toString()
+        val extraHot: Boolean = commands[0].length == 2
+        val message = getIfMessageInCommand(drink, commands)
+        val sugarQuantity: Int? = commands[1].toIntOrNull() ?: 0
         val stick = sugarQuantity?.compareTo(0) != 0
+        val money = getMoneyFromCommand(commands)
+        val (result, coins) = verifyMoneyForOrder(OrderType.valueOf(drink), money)
 
-        val money = if (splittedValues.size > 2)
-            splittedValues[2].toFloatOrNull()
+        return processOrder(result, coins, drink, sugarQuantity, stick, extraHot, message)
+    }
+
+    private fun getIfMessageInCommand(drink: String, splittedValues: List<String>) =
+        if (drink == OrderType.M.name) splittedValues[1]
+        else null
+
+    private fun getMoneyFromCommand(splittedValues: List<String>): Float =
+        if (splittedValues.size > 2)
+            splittedValues[2].toFloatOrNull() ?: 0.0f
         else
             0.0f
-        val (result, coins) = validateMoney(OrderType.valueOf(drink), money)
 
-        return when (result) {
+
+    private fun processOrder(
+        moneyStatus: MoneyStatus,
+        coins: Float,
+        drinkType: String,
+        sugarQuantity: Int?,
+        stick: Boolean,
+        extraHot: Boolean,
+        message: String?
+    ): OrderResult {
+        return when (moneyStatus) {
             MoneyStatus.NOT_OK -> OrderResult.Failure(
                 "Please insert more ${String.format(
                     "%.1f",
                     coins
-                ).toDouble()} to get ${OrderType.valueOf(drink).drink}"
+                ).toDouble()} to get ${OrderType.valueOf(drinkType).drink}"
             )
-            else -> OrderResult.Success(PreparedOrder.getDrink(drink, sugarQuantity, stick, extraHot, message))
+            else -> {
+                val preparedOrder = PreparedOrder.getDrink(drinkType, sugarQuantity, stick, extraHot, message)
+                orders.add(preparedOrder)
+                return OrderResult.Success(preparedOrder)
+            }
         }
     }
+
+    fun allOrders(): List<PreparedOrder> = orders
+    fun summary(): List<PreparedOrder> = TODO()
 }
 
-fun validateMoney(orderType: OrderType, money: Float?): Pair<MoneyStatus, Float> {
-    val insertedCoin: Float = money ?: 0.0f
+fun verifyMoneyForOrder(orderType: OrderType, insertedMoney: Float): Pair<MoneyStatus, Float> {
 
-    return if (insertedCoin.compareTo(orderType.cost) >= 0) {
-        val change = insertedCoin.minus(orderType.cost)
+    return if (insertedMoney.compareTo(orderType.cost) >= 0) {
+        val change = insertedMoney.minus(orderType.cost)
         Pair(MoneyStatus.OK, (change))
     } else {
-        val required = orderType.cost.minus(insertedCoin)
+        val required = orderType.cost.minus(insertedMoney)
         println(required)
         Pair(MoneyStatus.NOT_OK, required)
     }
 }
 
-enum class MoneyStatus() {
+enum class MoneyStatus {
     OK, NOT_OK
 }
 

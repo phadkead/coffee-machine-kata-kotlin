@@ -22,6 +22,6 @@ sealed class PreparedOrder {
 
 data class Tea(val sugar: Int = 0, val stick: Boolean = false, val extraHot: Boolean = false) : PreparedOrder()
 data class Coffee(val sugar: Int = 0, val stick: Boolean = false, val extraHot: Boolean = false) : PreparedOrder()
-data class Chocolate(val sugar: Int, val stick: Boolean, val extraHot: Boolean = false) : PreparedOrder()
+data class Chocolate(val sugar: Int = 0, val stick: Boolean = false, val extraHot: Boolean = false) : PreparedOrder()
 object Orange : PreparedOrder()
 data class Message(val message: String) : PreparedOrder()

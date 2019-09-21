@@ -106,4 +106,34 @@ class CalculatorBDDTest : Spek({
         }
 
     }
+
+    given("The coffee machine ") {
+        val coffeeMachine = CoffeeMachine()
+
+        on("when given VALID orders") {
+            coffeeMachine.process("H:0:0.5")
+            coffeeMachine.process("C:0:0.5")
+            coffeeMachine.process("T:0:0.6")
+
+            it("should remember all of them") {
+                assertEquals(listOf(Chocolate(), Coffee(), Tea()), coffeeMachine.allOrders())
+            }
+        }
+    }
+
+    given("The coffee machine ") {
+        val coffeeMachine = CoffeeMachine()
+
+        on("asking, should give summary of all orders at any point of time") {
+            coffeeMachine.process("H:0:0.5")
+            coffeeMachine.process("C:0:0.5")
+            coffeeMachine.process("T:0:0.6")
+
+            it("should remember all of them") {
+
+                assertEquals(listOf(), coffeeMachine.summary())
+            }
+        }
+    }
+
 })
