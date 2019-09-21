@@ -7,7 +7,8 @@ class CoffeeMachine {
     fun process(command: String): OrderResult {
         //TODO throw exception if order not in right format
         val splittedValues = command.split(":")
-        val drink: String = splittedValues[0]
+        val drink: String = splittedValues[0][0].toString()
+        val extraHot: Boolean = splittedValues[0].length == 2
         val message =
             if (drink == OrderType.M.name) splittedValues[1]
             else null
@@ -19,7 +20,7 @@ class CoffeeMachine {
         val money = if (splittedValues.size > 2)
             splittedValues[2].toFloatOrNull()
         else
-            0f
+            0.0f
         val (result, coins) = validateMoney(OrderType.valueOf(drink), money)
 
         return when (result) {
@@ -29,7 +30,7 @@ class CoffeeMachine {
                     coins
                 ).toDouble()} to get ${OrderType.valueOf(drink).drink}"
             )
-            else -> OrderResult.Success(PreparedOrder.getDrink(drink, sugarQuantity, stick, message))
+            else -> OrderResult.Success(PreparedOrder.getDrink(drink, sugarQuantity, stick, extraHot, message))
         }
     }
 }
@@ -52,5 +53,6 @@ enum class MoneyStatus() {
 }
 
 enum class OrderType(val drink: String?, val cost: Float) {
-    T("Tea", 0.6f), C("Coffee", 0.4f), H("Chocolate", 0.5f), M(null, 0.0f)
+    T("Tea", 0.6f), C("Coffee", 0.4f), H("Chocolate", 0.5f), O("Orange", 0.6f),
+    M(null, 0.0f)
 }

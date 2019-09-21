@@ -1,10 +1,7 @@
 import com.CoffeeMachine
-import com.drink.Chocolate
-import com.drink.Coffee
-import com.drink.Message
+import com.drink.*
 import com.drink.OrderResult.Failure
 import com.drink.OrderResult.Success
-import com.drink.Tea
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -16,23 +13,31 @@ class CalculatorBDDTest : Spek({
     given("a command to Coffee machine with less money") {
         val coffeeMachine = CoffeeMachine()
 
+        on("Receiving command O::0.3") {
+            val result = coffeeMachine.process("O::0.3")
+            it("should give error") {
+                assertEquals(Failure("Please insert more 0.3 to get Orange"), result)
+            }
+        }
+
+        on("Receiving command Ch::0.3") {
+            val result = coffeeMachine.process("O::0.3")
+            it("should give error") {
+                assertEquals(Failure("Please insert more 0.3 to get Orange"), result)
+            }
+        }
+
         on("Receiving command T:1:0") {
             val result = coffeeMachine.process("T:1:0")
             it("should give Error message for money") {
-                assertEquals(
-                    Failure("Please insert more 0.6 to get Tea"),
-                    result
-                )
+                assertEquals(Failure("Please insert more 0.6 to get Tea"), result)
             }
         }
 
         on("Receiving command without sugar H:0:0") {
             val result = coffeeMachine.process("H:0:0")
             it("should give Error message for money") {
-                assertEquals(
-                    Failure("Please insert more 0.5 to get Chocolate"),
-                    coffeeMachine.process("H:0:0")
-                )
+                assertEquals(Failure("Please insert more 0.5 to get Chocolate"), result)
             }
         }
 
@@ -57,8 +62,21 @@ class CalculatorBDDTest : Spek({
         on("Receiving command T:1:10") {
             val result = coffeeMachine.process("T:1:2")
             it("should give Tea") {
-                val expected = Success(Tea(1, true))
-                assertEquals(expected, result)
+                assertEquals(Success(Tea(1, true)), result)
+            }
+        }
+
+        on("Receiving command Ch::0.7") {
+            val result = coffeeMachine.process("Ch::0.7")
+            it("should give Chocolate") {
+                assertEquals(Success(Coffee(0, stick = false, extraHot = true)), result)
+            }
+        }
+
+        on("Receiving command O::10") {
+            val result = coffeeMachine.process("O::10")
+            it("should give Orange") {
+                assertEquals(Success(Orange), result)
             }
         }
 
@@ -76,9 +94,7 @@ class CalculatorBDDTest : Spek({
         on("Receiving command T:1:0.6") {
             val result = coffeeMachine.process("T:1:2")
             it("should give Tea") {
-                assertEquals(
-                    Success(Tea(1, true)), result
-                )
+                assertEquals(Success(Tea(1, true)), result)
             }
         }
 
