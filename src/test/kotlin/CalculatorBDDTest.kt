@@ -1,4 +1,5 @@
 import com.CoffeeMachine
+import com.OrderType
 import com.drink.*
 import com.drink.OrderResult.Failure
 import com.drink.OrderResult.Success
@@ -68,7 +69,7 @@ class CalculatorBDDTest : Spek({
 
         on("Receiving command Ch::0.7") {
             val result = coffeeMachine.process("Ch::0.7")
-            it("should give Chocolate") {
+            it("should give extraHot Chocolate") {
                 assertEquals(Success(Coffee(0, stick = false, extraHot = true)), result)
             }
         }
@@ -110,28 +111,29 @@ class CalculatorBDDTest : Spek({
     given("The coffee machine ") {
         val coffeeMachine = CoffeeMachine()
 
-        on("when given VALID orders") {
+        on("asked for summary") {
             coffeeMachine.process("H:0:0.5")
-            coffeeMachine.process("C:0:0.5")
             coffeeMachine.process("T:0:0.6")
+            coffeeMachine.process("T:0:0.6")
+            coffeeMachine.process("O:0:0.8")
+            coffeeMachine.process("C:0:0.7")
+            coffeeMachine.process("C:0:0.7")
 
-            it("should remember all of them") {
-                assertEquals(listOf(Chocolate(), Coffee(), Tea()), coffeeMachine.allOrders())
+            val a = mapOf( OrderType.T to 2,  OrderType.H to 1 )
+
+            it("should give total number of each item sold") {
+                val actual = coffeeMachine.summary()
+                assertEquals(2, actual.get(OrderType.T))
+                assertEquals(0, actual.get(OrderType.M))
+                assertEquals(1, actual.get(OrderType.O))
+                assertEquals(2, actual.get(OrderType.C))
+                assertEquals(1, actual.get(OrderType.H))
             }
-        }
-    }
 
-    given("The coffee machine ") {
-        val coffeeMachine = CoffeeMachine()
+            it("should give total money earned so far") {
+                val actual = coffeeMachine.totalMoneyEarned()
+                assertEquals(3.1, actual)
 
-        on("asking, should give summary of all orders at any point of time") {
-            coffeeMachine.process("H:0:0.5")
-            coffeeMachine.process("C:0:0.5")
-            coffeeMachine.process("T:0:0.6")
-
-            it("should remember all of them") {
-
-                assertEquals(listOf(), coffeeMachine.summary())
             }
         }
     }

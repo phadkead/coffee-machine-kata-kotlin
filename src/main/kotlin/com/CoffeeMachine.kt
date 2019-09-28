@@ -17,24 +17,24 @@ class CoffeeMachine {
         val money = getMoneyFromCommand(commands)
         val (result, coins) = verifyMoneyForOrder(OrderType.valueOf(drink), money)
 
-        return processOrder(result, coins, drink, sugarQuantity, stick, extraHot, message)
+        return processOrder(result, coins, OrderType.valueOf(drink), sugarQuantity, stick, extraHot, message)
     }
 
     private fun getIfMessageInCommand(drink: String, splittedValues: List<String>) =
         if (drink == OrderType.M.name) splittedValues[1]
         else null
 
-    private fun getMoneyFromCommand(splittedValues: List<String>): Float =
+    private fun getMoneyFromCommand(splittedValues: List<String>): Double =
         if (splittedValues.size > 2)
-            splittedValues[2].toFloatOrNull() ?: 0.0f
+            splittedValues[2].toDoubleOrNull() ?: 0.0
         else
-            0.0f
+            0.0
 
 
     private fun processOrder(
         moneyStatus: MoneyStatus,
-        coins: Float,
-        drinkType: String,
+        coins: Double,
+        drinkType: OrderType,
         sugarQuantity: Int?,
         stick: Boolean,
         extraHot: Boolean,
@@ -45,7 +45,7 @@ class CoffeeMachine {
                 "Please insert more ${String.format(
                     "%.1f",
                     coins
-                ).toDouble()} to get ${OrderType.valueOf(drinkType).drink}"
+                ).toDouble()} to get ${drinkType.drink}"
             )
             else -> {
                 val preparedOrder = PreparedOrder.getDrink(drinkType, sugarQuantity, stick, extraHot, message)
@@ -55,12 +55,19 @@ class CoffeeMachine {
         }
     }
 
-    fun allOrders(): List<PreparedOrder> = orders
-    fun summary(): List<PreparedOrder> = TODO()
+    fun summary(): Map<OrderType, Int> {
+        return enumValues<OrderType>().map { orderType ->
+            val count = orders.count { it.orderType == orderType }
+            orderType to count
+        }.toMap()
+    }
+
+    fun totalMoneyEarned(): Double {
+        return orders.sumByDouble { it.orderType.cost.toDouble() }
+    }
 }
 
-fun verifyMoneyForOrder(orderType: OrderType, insertedMoney: Float): Pair<MoneyStatus, Float> {
-
+fun verifyMoneyForOrder(orderType: OrderType, insertedMoney: Double): Pair<MoneyStatus, Double> {
     return if (insertedMoney.compareTo(orderType.cost) >= 0) {
         val change = insertedMoney.minus(orderType.cost)
         Pair(MoneyStatus.OK, (change))
@@ -75,7 +82,7 @@ enum class MoneyStatus {
     OK, NOT_OK
 }
 
-enum class OrderType(val drink: String?, val cost: Float) {
-    T("Tea", 0.6f), C("Coffee", 0.4f), H("Chocolate", 0.5f), O("Orange", 0.6f),
-    M(null, 0.0f)
+enum class OrderType(val drink: String?, val cost: Double) {
+    T("Tea", 0.6), C("Coffee", 0.4), H("Chocolate", 0.5), O("Orange", 0.6),
+    M(null, 0.0)
 }
