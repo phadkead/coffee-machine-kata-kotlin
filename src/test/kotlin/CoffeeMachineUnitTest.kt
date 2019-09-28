@@ -1,6 +1,6 @@
 import com.MoneyStatus
 import com.OrderType
-import com.verifyMoneyForOrder
+import com.command.verifyMoneyForOrder
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it

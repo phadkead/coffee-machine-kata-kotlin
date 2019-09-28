@@ -1,24 +1,18 @@
 package com.drink
 
 import com.OrderType
+import com.command.OrderCommand
 
 sealed class PreparedOrder(val orderType: OrderType) {
 
     companion object {
-        fun getDrink(
-            drink: OrderType?,
-            sugarQuantity: Int?,
-            stick: Boolean?,
-            extraHot: Boolean?,
-            message: String?
-        ): PreparedOrder =
-            when (drink) {
-                OrderType.T -> Tea(sugarQuantity ?: 0, stick ?: false, extraHot ?: false)
-                OrderType.C -> Coffee(sugarQuantity ?: 0, stick ?: false, extraHot ?: false)
-                OrderType.H -> Chocolate(sugarQuantity ?: 0, stick ?: false, extraHot ?: false)
-                OrderType.M -> Message(message ?: "")
+        fun getDrink(command: OrderCommand): PreparedOrder =
+            when (command.drinkType) {
+                OrderType.T -> Tea(command.sugarQuantity ?: 0, command.stick ?: false, command.extraHot ?: false)
+                OrderType.C -> Coffee(command.sugarQuantity ?: 0, command.stick ?: false, command.extraHot ?: false)
+                OrderType.H -> Chocolate(command.sugarQuantity ?: 0, command.stick ?: false, command.extraHot ?: false)
+                OrderType.M -> Message(command.message ?: "")
                 OrderType.O -> Orange
-                else -> throw Exception("I don't know how to deal with $drink.")
             }
     }
 

@@ -119,7 +119,7 @@ class CalculatorBDDTest : Spek({
             coffeeMachine.process("C:0:0.7")
             coffeeMachine.process("C:0:0.7")
 
-            val a = mapOf( OrderType.T to 2,  OrderType.H to 1 )
+            val a = mapOf(OrderType.T to 2, OrderType.H to 1)
 
             it("should give total number of each item sold") {
                 val actual = coffeeMachine.summary()
